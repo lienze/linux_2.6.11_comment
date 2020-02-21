@@ -304,6 +304,9 @@ irqreturn_t timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
 /* not static: needed by APM */
 unsigned long get_cmos_time(void)
 {
+	/*
+	 * 从实时时钟读取自1970年1月1日午夜以来经过的秒数。
+	 */
 	unsigned long retval;
 
 	spin_lock(&rtc_lock);
@@ -399,6 +402,7 @@ void __init hpet_time_init(void)
 void __init time_init(void)
 {
 #ifdef CONFIG_HPET_TIMER
+	/* 如果内核支持HPET，则将首先检查HPET芯片。如果不存在，则设置PIT计时器。 */
 	if (is_hpet_capable()) {
 		/*
 		 * HPET initialization needs to do memory-mapped io. So, let
@@ -408,13 +412,16 @@ void __init time_init(void)
 		return;
 	}
 #endif
+	/* 初始化xtime变量。 */
 	xtime.tv_sec = get_cmos_time();
 	xtime.tv_nsec = (INITIAL_JIFFIES % HZ) * (NSEC_PER_SEC / HZ);
+	/* 初始化wall_to_monotonic变量。 */
 	set_normalized_timespec(&wall_to_monotonic,
 		-xtime.tv_sec, -xtime.tv_nsec);
 
 	cur_timer = select_timer();
 	printk(KERN_INFO "Using %s for high-res timesource\n",cur_timer->name);
 
+	/* 创建相应的中断门，irq0。 */
 	time_init_hook();
 }

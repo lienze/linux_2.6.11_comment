@@ -51,6 +51,9 @@ void clock_fallback(void)
  */
 struct timer_opts* __init select_timer(void)
 {
+	/*
+	 * 选择当前能够使用的最好的定时器资源。
+	 */
 	int i = 0;
 	
 	/* find most preferred working timer */
