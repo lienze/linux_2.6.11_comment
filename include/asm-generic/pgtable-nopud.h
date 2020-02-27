@@ -10,7 +10,7 @@
  */
 typedef struct { pgd_t pgd; } pud_t;
 
-#define PUD_SHIFT	PGDIR_SHIFT
+#define PUD_SHIFT	PGDIR_SHIFT	// 页上级目录项字段的位数。
 #define PTRS_PER_PUD	1
 #define PUD_SIZE  	(1UL << PUD_SHIFT)
 #define PUD_MASK  	(~(PUD_SIZE-1))

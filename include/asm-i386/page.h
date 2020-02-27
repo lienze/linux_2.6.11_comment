@@ -2,9 +2,9 @@
 #define _I386_PAGE_H
 
 /* PAGE_SHIFT determines the page size */
-#define PAGE_SHIFT	12
-#define PAGE_SIZE	(1UL << PAGE_SHIFT)
-#define PAGE_MASK	(~(PAGE_SIZE-1))
+#define PAGE_SHIFT	12	// 指定offset字段的位数。
+#define PAGE_SIZE	(1UL << PAGE_SHIFT)	// 通过offset值计算页的大小。
+#define PAGE_MASK	(~(PAGE_SIZE-1))	// 此宏可屏蔽offset字段的位。
 
 #define LARGE_PAGE_MASK (~(LARGE_PAGE_SIZE-1))
 #define LARGE_PAGE_SIZE (1UL << PMD_SHIFT)
@@ -45,8 +45,11 @@
 extern int nx_enabled;
 #ifdef CONFIG_X86_PAE
 extern unsigned long long __supported_pte_mask;
+// pte_t 表示页表项的数据结构。
 typedef struct { unsigned long pte_low, pte_high; } pte_t;
+// pmd_t 表示页中间目录项的数据结构。
 typedef struct { unsigned long long pmd; } pmd_t;
+// pgd_t 表示页全局目录项的数据结构。
 typedef struct { unsigned long long pgd; } pgd_t;
 typedef struct { unsigned long long pgprot; } pgprot_t;
 #define pmd_val(x)	((x).pmd)

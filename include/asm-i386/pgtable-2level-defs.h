@@ -5,7 +5,7 @@
  * traditional i386 two-level paging structure:
  */
 
-#define PGDIR_SHIFT	22
+#define PGDIR_SHIFT	22	// 全局目录项字段占用的位数。
 #define PTRS_PER_PGD	1024
 
 /*
