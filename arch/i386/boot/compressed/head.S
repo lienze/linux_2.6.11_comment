@@ -28,6 +28,9 @@
 
 	.globl startup_32
 	
+/*
+ * 初始化临时页全局目录。
+ */
 startup_32:
 	cld
 	cli

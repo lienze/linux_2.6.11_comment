@@ -8,6 +8,9 @@
 
 static char * __init machine_specific_memory_setup(void)
 {
+	/*
+	 * 内核启动过程中，建立物理地址映射过程。
+	 */
 	char *who;
 
 

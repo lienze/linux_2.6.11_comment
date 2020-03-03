@@ -504,8 +504,10 @@ void __init paging_init(void)
 		printk("NX (Execute Disable) protection: active\n");
 #endif
 
+	/* 建立页表项。 注意注意！！！这里初始化swapper_pg_dir变量。*/
 	pagetable_init();
 
+	/* 将cr3寄存器设置为swapper_pg_dir的值。 */
 	load_cr3(swapper_pg_dir);
 
 #ifdef CONFIG_X86_PAE
@@ -516,6 +518,7 @@ void __init paging_init(void)
 	if (cpu_has_pae)
 		set_in_cr4(X86_CR4_PAE);
 #endif
+	/* 使TLB的所有项无效。 */
 	__flush_tlb_all();
 
 	kmap_init();
