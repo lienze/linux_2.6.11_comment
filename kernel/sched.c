@@ -183,9 +183,9 @@ static unsigned int task_timeslice(task_t *p)
 typedef struct runqueue runqueue_t;
 
 struct prio_array {
-	unsigned int nr_active;
-	unsigned long bitmap[BITMAP_SIZE];
-	struct list_head queue[MAX_PRIO];
+	unsigned int nr_active;				// 位图中包含的进程数量计数器。
+	unsigned long bitmap[BITMAP_SIZE];	// 进程位图。
+	struct list_head queue[MAX_PRIO];	// 进程队列。
 };
 
 /*
@@ -220,6 +220,7 @@ struct runqueue {
 	unsigned long long timestamp_last_tick;
 	task_t *curr, *idle;
 	struct mm_struct *prev_mm;
+	//active指向活动进程，expired指向过期进程。
 	prio_array_t *active, *expired, arrays[2];
 	int best_expired_prio;
 	atomic_t nr_iowait;
@@ -283,7 +284,9 @@ static DEFINE_PER_CPU(struct runqueue, runqueues);
 #define for_each_domain(cpu, domain) \
 	for (domain = cpu_rq(cpu)->sd; domain; domain = domain->parent)
 
+//产生索引为n的CPU运行队列的地址。
 #define cpu_rq(cpu)		(&per_cpu(runqueues, (cpu)))
+//产生本地CPU运行队列的地址。
 #define this_rq()		(&__get_cpu_var(runqueues))
 #define task_rq(p)		cpu_rq(task_cpu(p))
 #define cpu_curr(cpu)		(cpu_rq(cpu)->curr)
@@ -648,6 +651,9 @@ static inline void __activate_idle_task(task_t *p, runqueue_t *rq)
 
 static void recalc_task_prio(task_t *p, unsigned long long now)
 {
+	/*
+	 * 更新进程的动态优先级。
+	 */
 	unsigned long long __sleep_time = now - p->timestamp;
 	unsigned long sleep_time;
 
@@ -984,6 +990,9 @@ static inline int wake_idle(int cpu, task_t *p)
  */
 static int try_to_wake_up(task_t * p, unsigned int state, int sync)
 {
+	/*
+	 * 唤醒睡眠进程。
+	 */
 	int cpu, this_cpu, success = 0;
 	unsigned long flags;
 	long old_state;
@@ -1931,6 +1940,9 @@ static runqueue_t *find_busiest_queue(struct sched_group *group)
 static int load_balance(int this_cpu, runqueue_t *this_rq,
 			struct sched_domain *sd, enum idle_type idle)
 {
+	/*
+	 * 维持多处理器系统中运行队列的平衡。
+	 */
 	struct sched_group *group;
 	runqueue_t *busiest;
 	unsigned long imbalance;
@@ -2411,6 +2423,9 @@ void account_steal_time(struct task_struct *p, cputime_t steal)
  */
 void scheduler_tick(void)
 {
+	/*
+	 * 维持当前最新的time_slice计数器。
+	 */
 	int cpu = smp_processor_id();
 	runqueue_t *rq = this_rq();
 	task_t *p = current;
@@ -2418,6 +2433,7 @@ void scheduler_tick(void)
 	rq->timestamp_last_tick = sched_clock();
 
 	if (p == rq->idle) {
+		//当前进程为swapper进程。
 		if (wake_priority_sleeper(rq))
 			goto out;
 		rebalance_tick(cpu, rq, SCHED_IDLE);
@@ -2426,10 +2442,11 @@ void scheduler_tick(void)
 
 	/* Task might have expired already, but not scheduled off yet */
 	if (p->array != rq->active) {
+		//进程已经过期，但还么有被替换，此时强制进行重新调度。
 		set_tsk_need_resched(p);
 		goto out;
 	}
-	spin_lock(&rq->lock);
+	spin_lock(&rq->lock);//获得自旋锁。
 	/*
 	 * The task was running during this tick - update the
 	 * time slice counter. Note: we do not update a thread's
@@ -2442,17 +2459,23 @@ void scheduler_tick(void)
 		 * RR tasks need a special form of timeslice management.
 		 * FIFO tasks have no timeslices.
 		 */
+		//当前运行的进程如果是基于时间片轮转的实时进程，就要递减时间片了。
 		if ((p->policy == SCHED_RR) && !--p->time_slice) {
 			p->time_slice = task_timeslice(p);
 			p->first_time_slice = 0;
+			//设置进程的TIF_NEED_RESCHED标志。
+			//TIF="Thread Information Flags"
 			set_tsk_need_resched(p);
-
 			/* put it at the end of the queue: */
 			requeue_task(p, rq->active);
 		}
+		//除了基于时间片轮转的实时进程，还存在先进先出的实时进程，在这里
+		//不进行处理。
 		goto out_unlock;
 	}
 	if (!--p->time_slice) {
+		//对于普通进程来讲，这里先递减时间片计数器，然后马上
+		//判断是否用完时间片，如果用完了，进行一下处理。
 		dequeue_task(p, rq->active);
 		set_tsk_need_resched(p);
 		p->prio = effective_prio(p);
@@ -2494,9 +2517,9 @@ void scheduler_tick(void)
 		}
 	}
 out_unlock:
-	spin_unlock(&rq->lock);
+	spin_unlock(&rq->lock);//释放自旋锁。
 out:
-	rebalance_tick(cpu, rq, NOT_IDLE);
+	rebalance_tick(cpu, rq, NOT_IDLE);//负载均衡，使不同CPU的运行队列基本相同。
 }
 
 #ifdef CONFIG_SCHED_SMT
@@ -2661,6 +2684,9 @@ EXPORT_SYMBOL(sub_preempt_count);
  */
 asmlinkage void __sched schedule(void)
 {
+	/*
+	 * 选择要被执行的新进程。
+	 */
 	long *switch_count;
 	task_t *prev, *next;
 	runqueue_t *rq;

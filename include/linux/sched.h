@@ -534,16 +534,18 @@ struct task_struct {
 
 	int lock_depth;		/* Lock depth */
 
-	int prio, static_prio;
-	struct list_head run_list;
+	int prio, static_prio;//prio动态优先级，以及静态优先级。
+	struct list_head run_list;//指向进程所属的运行队列的下一个和前一个进程。
 	prio_array_t *array;
 
 	unsigned long sleep_avg;
 	unsigned long long timestamp, last_ran;
 	int activated;
-
+	
+	//进程的调度类型，分三种：普通、时间片轮转的实时进程、先进先出的实时进程。
 	unsigned long policy;
 	cpumask_t cpus_allowed;
+	//time_slice进程时间片中剩余节拍数。
 	unsigned int time_slice, first_time_slice;
 
 #ifdef CONFIG_SCHEDSTATS
