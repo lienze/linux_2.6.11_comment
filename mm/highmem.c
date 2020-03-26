@@ -55,6 +55,7 @@ static int pkmap_count[LAST_PKMAP];
 static unsigned int last_pkmap_nr;
 static  __cacheline_aligned_in_smp DEFINE_SPINLOCK(kmap_lock);
 
+// 指向高端页框到内核地址空间的长期映射表。
 pte_t * pkmap_page_table;
 
 static DECLARE_WAIT_QUEUE_HEAD(pkmap_map_wait);
@@ -491,8 +492,8 @@ EXPORT_SYMBOL(blk_queue_bounce);
  * Describes one page->virtual association
  */
 struct page_address_map {
-	struct page *page;
-	void *virtual;
+	struct page *page;	// 指向页描述符的指针
+	void *virtual;		// 分配给该页框的线性地址
 	struct list_head list;
 };
 
@@ -517,6 +518,9 @@ static struct page_address_slot *page_slot(struct page *page)
 
 void *page_address(struct page *page)
 {
+	/*
+	 * 返回页框对应的线性地址。
+	 */
 	unsigned long flags;
 	void *ret;
 	struct page_address_slot *pas;

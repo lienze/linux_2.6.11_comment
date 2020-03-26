@@ -59,6 +59,7 @@ extern int sysctl_legacy_va_layout;
  * library, the executable area etc).
  */
 struct vm_area_struct {
+	//线性区结构体。
 	struct mm_struct * vm_mm;	/* The address space we belong to. */
 	unsigned long vm_start;		/* Our start address within vm_mm. */
 	unsigned long vm_end;		/* The first byte after our end address

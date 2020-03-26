@@ -205,6 +205,7 @@ extern void arch_unmap_area_topdown(struct vm_area_struct *area);
 
 
 struct mm_struct {
+	//指向线性区对象的指针。
 	struct vm_area_struct * mmap;		/* list of VMAs */
 	struct rb_root mm_rb;
 	struct vm_area_struct * mmap_cache;	/* last find_vma result */
@@ -221,6 +222,7 @@ struct mm_struct {
 	struct rw_semaphore mmap_sem;
 	spinlock_t page_table_lock;		/* Protects page tables, mm->rss, mm->anon_rss */
 
+	//用于链接其他进程的内存描述符，链表头部为init_mm的mmlist字段。
 	struct list_head mmlist;		/* List of maybe swapped mm's.  These are globally strung
 						 * together off init_mm.mmlist, and are protected
 						 * by mmlist_lock
@@ -560,6 +562,9 @@ struct task_struct {
 	struct list_head ptrace_children;
 	struct list_head ptrace_list;
 
+	//mm_struct类型指内存描述符。
+	//mm为进程所拥有的内存描述符。
+	//active_mm为进程运行时所使用的内存描述符。
 	struct mm_struct *mm, *active_mm;
 
 /* task state */

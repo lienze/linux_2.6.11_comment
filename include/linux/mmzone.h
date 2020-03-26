@@ -108,6 +108,9 @@ struct per_cpu_pageset {
  */
 
 struct zone {
+	/*
+	 * 管理区描述符。
+	 */
 	/* Fields commonly accessed by the page allocator */
 	unsigned long		free_pages;
 	unsigned long		pages_min, pages_low, pages_high;
