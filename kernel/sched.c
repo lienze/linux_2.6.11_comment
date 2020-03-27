@@ -2442,7 +2442,7 @@ void scheduler_tick(void)
 
 	/* Task might have expired already, but not scheduled off yet */
 	if (p->array != rq->active) {
-		//进程已经过期，但还么有被替换，此时强制进行重新调度。
+		//进程已经过期，但还没有被替换，此时强制进行重新调度。
 		set_tsk_need_resched(p);
 		goto out;
 	}
@@ -2507,6 +2507,7 @@ void scheduler_tick(void)
 		 * This only applies to tasks in the interactive
 		 * delta range with at least TIMESLICE_GRANULARITY to requeue.
 		 */
+		//时间片没有用完。
 		if (TASK_INTERACTIVE(p) && !((task_timeslice(p) -
 			p->time_slice) % TIMESLICE_GRANULARITY(p)) &&
 			(p->time_slice >= TIMESLICE_GRANULARITY(p)) &&

@@ -205,8 +205,12 @@ extern void arch_unmap_area_topdown(struct vm_area_struct *area);
 
 
 struct mm_struct {
+	/*
+	 * 内存描述符结构。
+	 */
 	//指向线性区对象的指针。
 	struct vm_area_struct * mmap;		/* list of VMAs */
+	//红黑树的首部。
 	struct rb_root mm_rb;
 	struct vm_area_struct * mmap_cache;	/* last find_vma result */
 	unsigned long (*get_unmapped_area) (struct file *filp,
@@ -218,6 +222,7 @@ struct mm_struct {
 	pgd_t * pgd;
 	atomic_t mm_users;			/* How many users with user space? */
 	atomic_t mm_count;			/* How many references to "struct mm_struct" (users count as 1) */
+	//存放进程所拥有的线性区的数量。
 	int map_count;				/* number of VMAs */
 	struct rw_semaphore mmap_sem;
 	spinlock_t page_table_lock;		/* Protects page tables, mm->rss, mm->anon_rss */
