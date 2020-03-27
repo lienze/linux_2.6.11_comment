@@ -1163,6 +1163,7 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
 	struct vm_area_struct *vma;
 	unsigned long start_addr;
 
+	//首先检查长度是否超过了用户空间所能使用的极限。
 	if (len > TASK_SIZE)
 		return -ENOMEM;
 
@@ -1173,6 +1174,8 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
 		    (!vma || addr + len <= vma->vm_start))
 			return addr;
 	}
+	//以下为从用户空间0地址开始进行分配的情形。
+	//或前面搜索失败的情形。
 	start_addr = addr = mm->free_area_cache;
 
 full_search:
@@ -1315,6 +1318,11 @@ unsigned long
 get_unmapped_area(struct file *file, unsigned long addr, unsigned long len,
 		unsigned long pgoff, unsigned long flags)
 {
+	/*
+	 * 查找一个可以使用的空闲线性地址区间。
+	 * @addr: 起始地址。
+	 * @len: 待查找的空闲线性地址区间的长度。
+	 */
 	if (flags & MAP_FIXED) {
 		unsigned long ret;
 
@@ -1353,11 +1361,17 @@ EXPORT_SYMBOL(get_unmapped_area);
 /* Look up the first VMA which satisfies  addr < vm_end,  NULL if none. */
 struct vm_area_struct * find_vma(struct mm_struct * mm, unsigned long addr)
 {
+	/*
+	 * 查找给定地址addr的最邻近线性区。
+	 * @mm: 进程内存描述符
+	 * @addr: 线性地址
+	 */
 	struct vm_area_struct *vma = NULL;
 
 	if (mm) {
 		/* Check the cache first. */
 		/* (Cache hit rate is typically around 35%.) */
+		//根据局部性原理，首先探查之前存储的线性地址是否包含addr。
 		vma = mm->mmap_cache;
 		if (!(vma && vma->vm_end > addr && vma->vm_start <= addr)) {
 			struct rb_node * rb_node;
@@ -1368,6 +1382,7 @@ struct vm_area_struct * find_vma(struct mm_struct * mm, unsigned long addr)
 			while (rb_node) {
 				struct vm_area_struct * vma_tmp;
 
+				//从红黑树中导出线性描述符的地址。
 				vma_tmp = rb_entry(rb_node,
 						struct vm_area_struct, vm_rb);
 

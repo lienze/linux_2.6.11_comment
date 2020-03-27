@@ -795,6 +795,9 @@ extern struct vm_area_struct * find_vma_prev(struct mm_struct * mm, unsigned lon
    NULL if none.  Assume start_addr < end_addr. */
 static inline struct vm_area_struct * find_vma_intersection(struct mm_struct * mm, unsigned long start_addr, unsigned long end_addr)
 {
+	/*
+	 * 查找一个与给定地址区间相重叠的线性区。
+	 */
 	struct vm_area_struct * vma = find_vma(mm,start_addr);
 
 	if (vma && end_addr <= vma->vm_start)
