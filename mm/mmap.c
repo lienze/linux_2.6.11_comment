@@ -1714,6 +1714,9 @@ static void unmap_region(struct mm_struct *mm,
 	unsigned long start,
 	unsigned long end)
 {
+	/*
+	 * 遍历线性区链表并释放他们的页框。
+	 */
 	struct mmu_gather *tlb;
 	unsigned long nr_accounted = 0;
 
@@ -1759,6 +1762,9 @@ detach_vmas_to_be_unmapped(struct mm_struct *mm, struct vm_area_struct *vma,
 int split_vma(struct mm_struct * mm, struct vm_area_struct * vma,
 	      unsigned long addr, int new_below)
 {
+	/*
+	 * 将与线性地址区间交叉的线性区划分为两个较小的区。
+	 */
 	struct mempolicy *pol;
 	struct vm_area_struct *new;
 
@@ -1811,6 +1817,11 @@ int split_vma(struct mm_struct * mm, struct vm_area_struct * vma,
  */
 int do_munmap(struct mm_struct *mm, unsigned long start, size_t len)
 {
+	/*
+	 * 从当前进程的地址空间中删除一个线性地址区间。
+	 * @start: 线性地址区间的起始地址。
+	 * @len: 线性地址区间的长度。
+	 */
 	unsigned long end;
 	struct vm_area_struct *mpnt, *prev, *last;
 
@@ -2038,6 +2049,9 @@ void exit_mmap(struct mm_struct *mm)
  */
 int insert_vm_struct(struct mm_struct * mm, struct vm_area_struct * vma)
 {
+	/*
+	 * 向内存描述符链表中插入一个线性区。
+	 */
 	struct vm_area_struct * __vma, * prev;
 	struct rb_node ** rb_link, * rb_parent;
 

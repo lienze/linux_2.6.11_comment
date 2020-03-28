@@ -739,6 +739,13 @@ static inline unsigned long do_mmap(struct file *file, unsigned long addr,
 	unsigned long len, unsigned long prot,
 	unsigned long flag, unsigned long offset)
 {
+	/*
+	 * 为当前进程创建并初始化一个新的线性区。
+	 * @addr: 线性地址的起始处。从这里开始查找一个空闲区间。
+	 * @len: 线性地址区间的长度。
+	 * @prot: 访问权限。
+	 * @flag: 指定其他标志。
+	 */
 	unsigned long ret = -EINVAL;
 	if ((offset + PAGE_ALIGN(len)) < offset)
 		goto out;

@@ -296,6 +296,9 @@ int exception_trace = 1;
  */
 asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long error_code)
 {
+	/*
+	 * 80x86上的缺页终端服务程序。
+	 */
 	struct task_struct *tsk;
 	struct mm_struct *mm;
 	struct vm_area_struct * vma;
