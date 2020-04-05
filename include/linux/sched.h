@@ -228,12 +228,21 @@ struct mm_struct {
 	spinlock_t page_table_lock;		/* Protects page tables, mm->rss, mm->anon_rss */
 
 	//用于链接其他进程的内存描述符，链表头部为init_mm的mmlist字段。
-	struct list_head mmlist;		/* List of maybe swapped mm's.  These are globally strung
-						 * together off init_mm.mmlist, and are protected
-						 * by mmlist_lock
-						 */
+	struct list_head mmlist;		
+	/* List of maybe swapped mm's.  These are globally strung
+	 * together off init_mm.mmlist, and are protected
+	 * by mmlist_lock
+	*/
 
+	//start_code: 代码段起始地址。
+	//end_code: 代码段结束地址。
+	//start_data: 数据段起始地址。
+	//end_data: 数据段结束地址。
 	unsigned long start_code, end_code, start_data, end_data;
+
+	//strat_brk: 堆空间的起始地址。
+	//brk: 堆空间的结束地址。
+	//start_stack: 栈空间的起始地址
 	unsigned long start_brk, brk, start_stack;
 	unsigned long arg_start, arg_end, env_start, env_end;
 	unsigned long rss, anon_rss, total_vm, locked_vm, shared_vm;

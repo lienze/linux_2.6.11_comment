@@ -297,7 +297,7 @@ int exception_trace = 1;
 asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long error_code)
 {
 	/*
-	 * 80x86上的缺页终端服务程序。
+	 * 80x86上的缺页中断服务程序。
 	 * @regs: 包含当异常发生时，微处理器寄存器的值。
 	 * @error_code: 异常发生时，由控制单元压入栈中。
 	 */
@@ -321,14 +321,14 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long error_code)
 	}
 #endif
 
-	//读取引起缺页的线性地址。
+	//读取引起缺页异常的线性地址。
 	/* get the address */
 	__asm__("movq %%cr2,%0":"=r" (address));
 	if (notify_die(DIE_PAGE_FAULT, "page fault", regs, error_code, 14,
 					SIGSEGV) == NOTIFY_STOP)
 		return;
 
-	//确保本地终端打开。
+	//确保本地中断打开。
 	if (likely(regs->eflags & X86_EFLAGS_IF))
 		local_irq_enable();
 
@@ -356,6 +356,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long error_code)
 	 */
 	if (unlikely(address >= TASK_SIZE)) {
 		if (!(error_code & 5)) {
+			//5->0x101，对应error_code变量的说明。
 			if (vmalloc_fault(address) < 0)
 				goto bad_area_nosemaphore;
 			return;

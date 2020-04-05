@@ -205,6 +205,10 @@ static void remove_vm_struct(struct vm_area_struct *vma)
  */
 asmlinkage unsigned long sys_brk(unsigned long brk)
 {
+	/*
+	 * 修改堆的大小。
+	 * @brk: 指定新的堆空间的结束地址。
+	 */
 	unsigned long rlim, retval;
 	unsigned long newbrk, oldbrk;
 	struct mm_struct *mm = current->mm;
