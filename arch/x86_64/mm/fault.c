@@ -422,7 +422,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long error_code)
 good_area:
 	info.si_code = SEGV_ACCERR;
 	write = 0;
-	switch (error_code & 3) {
+	switch (error_code & 3) {	//3==011 表示"内核、写、保护异常"
 		default:	/* 3: write, present */
 			/* fall through */
 		case 2:		/* write, not present */

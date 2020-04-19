@@ -2061,6 +2061,14 @@ static inline int handle_pte_fault(struct mm_struct *mm,
 int handle_mm_fault(struct mm_struct *mm, struct vm_area_struct * vma,
 		unsigned long address, int write_access)
 {
+	/*
+	 * 分配一个新的页框。
+	 * @mm: 指向异常发生时，正在CPU上运行的进程的内存描述符。
+	 * @vma: 指向引起异常的线性地址所在线性区的描述符。
+	 * @address: 引起异常的线性地址。
+	 * @write_access: 如果tsk试图向address写，则赋值为1；如果tsk试图在address读或
+	 *                执行，则设置为0。
+	 */
 	pgd_t *pgd;
 	pud_t *pud;
 	pmd_t *pmd;
