@@ -3741,6 +3741,9 @@ asmlinkage long sys_sched_getaffinity(pid_t pid, unsigned int len,
  */
 asmlinkage long sys_sched_yield(void)
 {
+	/*
+	 * 放弃当前CPU以供其他进程使用。
+	 */
 	runqueue_t *rq = this_rq_lock();
 	prio_array_t *array = current->array;
 	prio_array_t *target = rq->expired;

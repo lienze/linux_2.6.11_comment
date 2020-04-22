@@ -219,6 +219,7 @@ struct mm_struct {
 	void (*unmap_area) (struct vm_area_struct *area);
 	unsigned long mmap_base;		/* base of mmap area */
 	unsigned long free_area_cache;		/* first hole */
+	//PGD(Page Global Directory, 页全局目录)
 	pgd_t * pgd;
 	atomic_t mm_users;			/* How many users with user space? */
 	atomic_t mm_count;			/* How many references to "struct mm_struct" (users count as 1) */

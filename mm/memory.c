@@ -2069,10 +2069,10 @@ int handle_mm_fault(struct mm_struct *mm, struct vm_area_struct * vma,
 	 * @write_access: 如果tsk试图向address写，则赋值为1；如果tsk试图在address读或
 	 *                执行，则设置为0。
 	 */
-	pgd_t *pgd;
-	pud_t *pud;
-	pmd_t *pmd;
-	pte_t *pte;
+	pgd_t *pgd;		//Page Global Directory		页全局目录
+	pud_t *pud;		//Page Upper  Directory		页顶级目录
+	pmd_t *pmd;		//Page Middle Directory		页中级目录
+	pte_t *pte;		//Page Table				页表
 
 	__set_current_state(TASK_RUNNING);
 
@@ -2121,6 +2121,7 @@ pud_t fastcall *__pud_alloc(struct mm_struct *mm, pgd_t *pgd, unsigned long addr
 {
 	pud_t *new;
 
+	//对页表操作之前，先解锁。
 	spin_unlock(&mm->page_table_lock);
 	new = pud_alloc_one(mm, address);
 	spin_lock(&mm->page_table_lock);

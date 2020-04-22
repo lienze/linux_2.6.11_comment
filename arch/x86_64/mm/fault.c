@@ -574,7 +574,7 @@ do_sigbus:
 	up_read(&mm->mmap_sem);
 
 	/* Kernel mode? Handle exceptions or die */
-	//4的二进制位0100，这里是检查第3位是否为1。保证为内核态。
+	//4的二进制为0100，这里检查第3位是否为1。保证为内核态。
 	if (!(error_code & 4))
 		goto no_context;
 

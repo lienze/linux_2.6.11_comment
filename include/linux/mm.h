@@ -669,6 +669,8 @@ extern void remove_shrinker(struct shrinker *shrinker);
 #ifndef __ARCH_HAS_4LEVEL_HACK 
 static inline pud_t *pud_alloc(struct mm_struct *mm, pgd_t *pgd, unsigned long address)
 {
+	//pgd_none函数判断参数pgd中的成员变量pgd是否为空，若为空直接调用
+	//__pud_alloc函数，否则直接取数值。
 	if (pgd_none(*pgd))
 		return __pud_alloc(mm, pgd, address);
 	return pud_offset(pgd, address);
