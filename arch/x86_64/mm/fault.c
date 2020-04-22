@@ -443,15 +443,15 @@ good_area:
 	 * the fault.
 	 */
 	switch (handle_mm_fault(mm, vma, address, write)) {
-	case 1:
+	case 1://没有阻塞情况下处理的缺页，通常为次要缺页。
 		tsk->min_flt++;
 		break;
-	case 2:
+	case 2://阻塞情况下处理缺页。
 		tsk->maj_flt++;
 		break;
-	case 0:
+	case 0://其他错误。
 		goto do_sigbus;
-	default:
+	default://没有足够的内存。
 		goto out_of_memory;
 	}
 
@@ -559,6 +559,8 @@ no_context:
 out_of_memory:
 	up_read(&mm->mmap_sem);
 out_of_memory2:
+	//pid为1的进程，为init进程，不能杀死init进程，只能放到运行队列末尾。
+	//等待后续调度。
 	if (current->pid == 1) { 
 		yield();
 		goto again;
@@ -572,6 +574,7 @@ do_sigbus:
 	up_read(&mm->mmap_sem);
 
 	/* Kernel mode? Handle exceptions or die */
+	//4的二进制位0100，这里是检查第3位是否为1。保证为内核态。
 	if (!(error_code & 4))
 		goto no_context;
 

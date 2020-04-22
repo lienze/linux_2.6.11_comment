@@ -536,10 +536,10 @@ static inline int page_mapped(struct page *page)
  * Used to decide whether a process gets delivered SIGBUS or
  * just gets major/minor fault counters bumped up.
  */
-#define VM_FAULT_OOM	(-1)
-#define VM_FAULT_SIGBUS	0
-#define VM_FAULT_MINOR	1
-#define VM_FAULT_MAJOR	2
+#define VM_FAULT_OOM	(-1)//没有足够的内存
+#define VM_FAULT_SIGBUS	0	//其他任何错误
+#define VM_FAULT_MINOR	1	//没有阻塞情况下处理的缺页
+#define VM_FAULT_MAJOR	2	//阻塞情况下处理缺页
 
 #define offset_in_page(p)	((unsigned long)(p) & ~PAGE_MASK)
 

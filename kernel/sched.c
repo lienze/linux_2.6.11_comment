@@ -3859,6 +3859,9 @@ EXPORT_SYMBOL(cond_resched_softirq);
  */
 void __sched yield(void)
 {
+	/*
+	 * 放弃当前CPU，给其他进程。
+	 */
 	set_current_state(TASK_RUNNING);
 	sys_sched_yield();
 }
