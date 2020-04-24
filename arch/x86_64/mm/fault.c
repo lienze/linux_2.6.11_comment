@@ -328,7 +328,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long error_code)
 					SIGSEGV) == NOTIFY_STOP)
 		return;
 
-	//确保本地中断打开。
+	//确保本地中断已经被打开。
 	if (likely(regs->eflags & X86_EFLAGS_IF))
 		local_irq_enable();
 
@@ -356,7 +356,7 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long error_code)
 	 */
 	if (unlikely(address >= TASK_SIZE)) {
 		if (!(error_code & 5)) {
-			//5->0x101，对应error_code变量的说明。
+			//5->0x101，参考error_code变量的说明。
 			if (vmalloc_fault(address) < 0)
 				goto bad_area_nosemaphore;
 			return;
@@ -368,14 +368,14 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long error_code)
 		goto bad_area_nosemaphore;
 	}
 
-	if (unlikely(error_code & (1 << 3)))
+	if (unlikely(error_code & (1 << 3)))	//1000
 		pgtable_bad(address, regs, error_code);
 
 	/*
 	 * If we're in an interrupt or have no user
 	 * context, we must not take the fault..
 	 */
-	if (unlikely(in_atomic() || !mm))
+	if (unlikely(in_atomic() || !mm))	// 对于内核线程而言，mm字段总为NULL。
 		goto bad_area_nosemaphore;
 
  again:
