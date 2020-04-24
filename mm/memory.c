@@ -2085,17 +2085,24 @@ int handle_mm_fault(struct mm_struct *mm, struct vm_area_struct * vma,
 	 * We need the page table lock to synchronize with kswapd
 	 * and the SMP-safe atomic PTE updates.
 	 */
+	//获取全局页目录。
+	//通过内存描述符可以获取页全局目录，这个对于每个进程来讲一定是存在的。
+	//但是，页全局目录中的目录项是不一定存在的，有可能为空。因此通过
+	//宏pgd_offset计算出来的返回值pgd变量，可能为空（即指向下一级的页顶级目录）。
 	pgd = pgd_offset(mm, address);
 	spin_lock(&mm->page_table_lock);
 
+	//获取顶级目录，如果没有直接创建一个新的。
 	pud = pud_alloc(mm, pgd, address);
 	if (!pud)
 		goto oom;
 
+	//检查中级目录是否存在。
 	pmd = pmd_alloc(mm, pud, address);
 	if (!pmd)
 		goto oom;
 
+	//检查页表是否存在。
 	pte = pte_alloc_map(mm, pmd, address);
 	if (!pte)
 		goto oom;
@@ -2121,7 +2128,7 @@ pud_t fastcall *__pud_alloc(struct mm_struct *mm, pgd_t *pgd, unsigned long addr
 {
 	pud_t *new;
 
-	//对页表操作之前，先解锁。
+	//对页表相关内容操作之前，先解锁，之后再加锁。
 	spin_unlock(&mm->page_table_lock);
 	new = pud_alloc_one(mm, address);
 	spin_lock(&mm->page_table_lock);
@@ -2136,6 +2143,7 @@ pud_t fastcall *__pud_alloc(struct mm_struct *mm, pgd_t *pgd, unsigned long addr
 		pud_free(new);
 		goto out;
 	}
+	//将新建的页顶级目录的物理基址填充到页全局目录的目录项中。
 	pgd_populate(mm, pgd, new);
  out:
 	return pud_offset(pgd, address);
