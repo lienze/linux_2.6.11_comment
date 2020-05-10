@@ -301,6 +301,7 @@ EXPORT_SYMBOL(rb_erase);
  */
 struct rb_node *rb_first(struct rb_root *root)
 {
+	//返回红黑树中值最小的节点。
 	struct rb_node	*n;
 
 	n = root->rb_node;
@@ -314,6 +315,7 @@ EXPORT_SYMBOL(rb_first);
 
 struct rb_node *rb_last(struct rb_root *root)
 {
+	//返回红黑树中值最大的节点。
 	struct rb_node	*n;
 
 	n = root->rb_node;
