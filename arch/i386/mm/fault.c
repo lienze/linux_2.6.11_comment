@@ -213,6 +213,13 @@ fastcall void do_invalid_op(struct pt_regs *, unsigned long);
  */
 fastcall void do_page_fault(struct pt_regs *regs, unsigned long error_code)
 {
+	/*
+	 * error_code:
+	 * xxx
+	 * |||--> 0: 缺页，1：页保护。
+	 * ||---> 0：读取，1：写入。
+	 * |----> 0：内核态，1：用户态。
+	 */
 	struct task_struct *tsk;
 	struct mm_struct *mm;
 	struct vm_area_struct * vma;
@@ -316,19 +323,23 @@ good_area:
 	info.si_code = SEGV_ACCERR;
 	write = 0;
 	switch (error_code & 3) {
+		/* 写入，页保护。 */
 		default:	/* 3: write, present */
 #ifdef TEST_VERIFY_AREA
 			if (regs->cs == KERNEL_CS)
 				printk("WP fault at %08lx\n", regs->eip);
 #endif
 			/* fall through */
+		/* 写入，缺页。 */
 		case 2:		/* write, not present */
 			if (!(vma->vm_flags & VM_WRITE))
 				goto bad_area;
 			write++;
 			break;
+		/* 读，页保护。 */
 		case 1:		/* read, present */
 			goto bad_area;
+		/* 读，缺页。 */
 		case 0:		/* read, not present */
 			if (!(vma->vm_flags & (VM_READ | VM_EXEC)))
 				goto bad_area;
@@ -340,15 +351,19 @@ good_area:
 	 * make sure we exit gracefully rather than endlessly redo
 	 * the fault.
 	 */
+	/* 分配一个新的页框。 */
 	switch (handle_mm_fault(mm, vma, address, write)) {
+		/* 成功返回一个页框。未阻塞当前进程。次缺页。 */
 		case VM_FAULT_MINOR:
 			tsk->min_flt++;
 			break;
+		/* 成功返回一个页框。阻塞当前进程获得了页框。主缺页。 */
 		case VM_FAULT_MAJOR:
 			tsk->maj_flt++;
 			break;
 		case VM_FAULT_SIGBUS:
 			goto do_sigbus;
+		/* 不分配新页框。 */
 		case VM_FAULT_OOM:
 			goto out_of_memory;
 		default:
