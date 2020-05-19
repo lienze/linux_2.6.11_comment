@@ -300,6 +300,10 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long error_code)
 	 * 80x86上的缺页中断服务程序。
 	 * @regs: 包含当异常发生时，微处理器寄存器的值。
 	 * @error_code: 异常发生时，由控制单元压入栈中。
+	 * 		b2 b1 b0
+	 * 		|  |  |--> 0:缺页，1:页保护
+	 * 		|  |-----> 0:读，1:写
+	 * 		|--------> 0:内核态，1:用户态
 	 */
 	struct task_struct *tsk;
 	struct mm_struct *mm;
