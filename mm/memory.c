@@ -2042,6 +2042,7 @@ static inline int handle_pte_fault(struct mm_struct *mm,
 	}
 
 	if (write_access) {
+		//当前被访问的页不可写。
 		if (!pte_write(entry))
 			return do_wp_page(mm, vma, address, pte, pmd, entry);
 
@@ -2086,8 +2087,8 @@ int handle_mm_fault(struct mm_struct *mm, struct vm_area_struct * vma,
 	 * and the SMP-safe atomic PTE updates.
 	 */
 	//获取全局页目录。
-	//通过内存描述符可以获取页全局目录，这个对于每个进程来讲一定是存在的。
-	//但是，页全局目录中的目录项是不一定存在的，有可能为空。因此通过
+	//通过内存描述符可以获取页全局目录，这个全局目录对于每个进程来讲一定是存在的。
+	//但是，页全局目录中的目录项不一定存在，有可能为空。因此通过
 	//宏pgd_offset计算出来的返回值pgd变量，可能为空（即指向下一级的页顶级目录）。
 	pgd = pgd_offset(mm, address);
 	spin_lock(&mm->page_table_lock);
@@ -2106,7 +2107,7 @@ int handle_mm_fault(struct mm_struct *mm, struct vm_area_struct * vma,
 	pte = pte_alloc_map(mm, pmd, address);
 	if (!pte)
 		goto oom;
-	
+	//注意，执行到这里时，pte指向页表项。
 	return handle_pte_fault(mm, vma, address, write_access, pte, pmd);
 
  oom:
