@@ -1786,6 +1786,9 @@ do_anonymous_page(struct mm_struct *mm, struct vm_area_struct *vma,
 		pte_t *page_table, pmd_t *pmd, int write_access,
 		unsigned long addr)
 {
+	/*
+	 * 获取一个新的页框。
+	 */
 	pte_t entry;
 	struct page * page = ZERO_PAGE(addr);
 
@@ -2034,15 +2037,16 @@ static inline int handle_pte_fault(struct mm_struct *mm,
 		 * and the PTE updates will not touch it later. So
 		 * drop the lock.
 		 */
-		if (pte_none(entry))
+		if (pte_none(entry))	//页从未被访问的情况，调用do_no_page函数。
 			return do_no_page(mm, vma, address, write_access, pte, pmd);
 		if (pte_file(entry))
 			return do_file_page(mm, vma, address, write_access, pte, pmd);
 		return do_swap_page(mm, vma, address, pte, pmd, entry, write_access);
 	}
 
+	//页表项存在。
 	if (write_access) {
-		//当前被访问的页不可写。
+		//当前被访问的页框不可写，启动写时复制机制。
 		if (!pte_write(entry))
 			return do_wp_page(mm, vma, address, pte, pmd, entry);
 

@@ -423,6 +423,11 @@ void mm_release(struct task_struct *tsk, struct mm_struct *mm)
 
 static int copy_mm(unsigned long clone_flags, struct task_struct * tsk)
 {
+	/*
+	 * 通过建立新进程的页表和内存描述符来创建进程的地址空间。
+	 * @clone_flags: 
+	 * @tsk: 
+	 */
 	struct mm_struct * mm, *oldmm;
 	int retval;
 
@@ -441,6 +446,7 @@ static int copy_mm(unsigned long clone_flags, struct task_struct * tsk)
 	if (!oldmm)
 		return 0;
 
+	//若创建的是轻量级进程，则父进程将地址空间给予子进程。
 	if (clone_flags & CLONE_VM) {
 		atomic_inc(&oldmm->mm_users);
 		mm = oldmm;
@@ -917,7 +923,7 @@ static task_t *copy_process(unsigned long clone_flags,
 		goto bad_fork_cleanup_fs;
 	if ((retval = copy_signal(clone_flags, p)))
 		goto bad_fork_cleanup_sighand;
-	if ((retval = copy_mm(clone_flags, p)))
+	if ((retval = copy_mm(clone_flags, p)))		//创建地址空间。
 		goto bad_fork_cleanup_signal;
 	if ((retval = copy_keys(clone_flags, p)))
 		goto bad_fork_cleanup_mm;
